@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     
     email:{
         type:String,
-        require:[true,"Email is require to create a new user"],
+        required:[true,"Email is require to create a new user"],
         trim:true,
         unique:[true,"Email Already exist"],
         lowercase:true,
@@ -13,22 +13,22 @@ const userSchema = new mongoose.Schema({
     },
     name :{
         type:String,
-        require:[true,"Name is require to create a new user"],
+        required:[true,"Name is require to create a new user"],
         unique:[true,"Name Already exist"],
     },
     password:{
         type:String,
-        require:[true,"Password is require to create a new user"],
+        required:[true,"Password is require to create a new user"],
         minlength:[6,"Password must be at least 6 characters long"],
-        select:false
+        select:false  // this will not return the password when we query the user from the database we explicitly need to select the password field when we query the user from the database
     
     }
 },{
     timestamps:true
 })
 
-// working -> pre will run before saving the user to the database, if the password is not modified then we will just call next() to move to the next middleware, if the password is modified then we will hash it and then call next() to move to the next middleware
-userSchema.pre("save",async function(next){
+// working -> pre will run before saving the user to the database, if the password is not modified then we don't need to hash it again, if the password is modified then we will hash it and save it to the database
+userSchema.pre("save",async function(){
     // check if the password is modified, if not then we don't need to hash it again
     if (!this.isModified("password")){
         return ;

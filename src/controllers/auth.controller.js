@@ -1,14 +1,18 @@
 const userModel = require("../models/user.model")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs")
+const emailService = require("../services/email.service")
 
 /**
- * - user registration controller
- * - POST /api/auth/register
- * - @param {Object} req - Express request object
- * - @param {Object} res - Express response object
- * - @returns {Object} - JSON response with success message or error message
+ * Handles new user registration.
+ * @async
+ * @route {POST} /api/auth/register
+ * @access Public
+ * @param {import('express').Request} req - Express request object.
+ * @param {import('express').Response} res - Express response object.
+ * @returns {Promise<void>} Sends a JSON response with the created user data or error message.
  */
+
 
 async function registerUser (req,res){
     const {email,name,password} = req.body ;
@@ -66,7 +70,17 @@ async function registerUser (req,res){
         message:"User created successfully",
         status:true,
     })
+    
+    await emailService.sendRegistrationEmail(user.email,user.name);
 }
+
+/**
+ * - user login controller
+ * - POST /api/auth/login
+ * @param {req} req 
+ * @param {res} res 
+ * @returns 
+ */
 
 async function loginUser (req,res){
     const {email,password} = req.body ;
@@ -77,7 +91,8 @@ async function loginUser (req,res){
         })
     }
 
-    const user = await userModel.findOne({
+    const user = await userModel.findOne(
+        {
             $or: [{ email: email }]
         }).select("+password")
 
@@ -91,7 +106,7 @@ async function loginUser (req,res){
     
     if (!hashPassword) {
         return res.status(401).json({
-            message:"Invalid credentials"
+            message:"Invalid credentials! Wrong email or password ",
         })
     }
      
