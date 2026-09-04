@@ -47,23 +47,20 @@ async function sendRegistrationEmail(userEmail, userName) {
 
 }
 
+async function sendTransactionEmail(userEmail, name, amount, toAccount) {
+    const subject = 'Transaction Successful!';
+    const text = `Hello ${name},\n\nYour transaction of $${amount} to account ${toAccount} was successful.\n\nBest regards,\nThe Backend Ledger Team`;
+    const html = `<p>Hello ${name},</p><p>Your transaction of $${amount} to account ${toAccount} was successful.</p><p>Best regards,<br>The Backend Ledger Team</p>`;
 
-async function sendTransactionEmail(userEmail, userName, transactionDetails) {
-  const subject = 'Transaction Notification';
-  const text = `Hello ${userName},\n\nA transaction has been made on your account:\n\n${transactionDetails}\n\nBest regards,\nBank System Team`;
-  const html = `<p>Hello ${userName},</p><p>A transaction has been made on your account:</p><p>${transactionDetails}</p><p>Best regards,<br/>Bank System Team</p>`;
-
-  await sendEmail(userEmail, subject, text, html);
-
+    await sendEmail(userEmail, subject, text, html);
 }
 
-async function sendTransactionFailEmail(userEmail,userName,transactionDetails){
+async function sendTransactionFailureEmail(userEmail, name, amount, toAccount) {
+    const subject = 'Transaction Failed';
+    const text = `Hello ${name},\n\nWe regret to inform you that your transaction of $${amount} to account ${toAccount} has failed. Please try again later.\n\nBest regards,\nThe Backend Ledger Team`;
+    const html = `<p>Hello ${name},</p><p>We regret to inform you that your transaction of $${amount} to account ${toAccount} has failed. Please try again later.</p><p>Best regards,<br>The Backend Ledger Team</p>`;
 
-  const subject = 'Transaction Failed Notification';
-  const text = `Hello ${userName},\n\nYour recent transaction has failed:\n\n${transactionDetails}\n\nPlease check your account and try again.\n\nBest regards,\nBank System Team`;
-  const html = `<p>Hello ${userName},</p><p>Your recent transaction has failed:</p><p>${transactionDetails}</p><p>Please check your account and try again.</p><p>Best regards,<br/>Bank System Team</p>`;
-
-  await sendEmail(userEmail,subject,text,html)
+    await sendEmail(userEmail, subject, text, html);
 }
 
-module.exports = { sendRegistrationEmail, sendTransactionEmail, sendTransactionFailEmail };
+module.exports = { sendRegistrationEmail, sendTransactionEmail, sendTransactionFailureEmail };

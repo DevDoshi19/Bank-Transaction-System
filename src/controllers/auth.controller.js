@@ -2,7 +2,7 @@ const userModel = require("../models/user.model")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs")
 const emailService = require("../services/email.service")
-
+const tokenBlackListModel = require("../models/blackList.model")
 /**
  * Handles new user registration.
  * @async
@@ -14,7 +14,8 @@ const emailService = require("../services/email.service")
  */
 
 
-async function registerUser (req,res){
+
+async function registerUserController(req,res){
     const {email,name,password} = req.body ;
 
     if(!email || !name || !password) {
@@ -82,7 +83,7 @@ async function registerUser (req,res){
  * @returns 
  */
 
-async function loginUser (req,res){
+async function loginUserController(req,res){
     const {email,password} = req.body ;
 
     if (!email || !password) {
@@ -131,10 +132,42 @@ async function loginUser (req,res){
     res.status(200).json({
         message:"Login successful",
         status:true,
+        data :{
+            user:user._id,
+            email:user.email,
+            name:user.name,
+            token:token
+        }
     })
 }
 
+/**
+ * - POST api/auth/logout
+ * user logout by invalidating the refresh token
+ */
+async function logoutController(req, res) {
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[ 1 ]
+
+    if (!token) {
+        return res.status(200).json({
+            message: "User logged out successfully"
+        })
+    }
+
+    await tokenBlackListModel.create({
+        token: token
+    })
+
+    res.clearCookie("token")
+    res.status(200).json({
+        message: "User logged out successfully"
+    })
+
+}
+
+
 module.exports = {
-    registerUser,
-    loginUser
+    registerUserController,
+    loginUserController,
+    logoutController
 }

@@ -22,6 +22,12 @@ const userSchema = new mongoose.Schema({
         minlength:[6,"Password must be at least 6 characters long"],
         select:false  // this will not return the password when we query the user from the database we explicitly need to select the password field when we query the user from the database
     
+    },
+    systemUser:{
+        type:Boolean,
+        default:false,
+        immutable:true, // this will ensure that the systemUser field cannot be updated once it is set
+        select:false 
     }
 },{
     timestamps:true

@@ -21,7 +21,9 @@ app.use("/api/accounts", accountRouter);
 app.use("/api/transactions",transactionRouter);
 // default route
 app.get("/", (req, res) => {
-  res.send("Welcome to advanced banking system");
+  res.status(200).json({
+    message: "Welcome to the Bank Transaction System API",
+  });
 });
 
 module.exports = app;
