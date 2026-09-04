@@ -71,17 +71,17 @@ Bank-Transaction-System/
 └── .gitignore
 ```
 
-`server.js` loads the environment, connects to MongoDB, imports the Express application, and starts the HTTP server. `src/app.js` registers JSON and cookie parsing middleware and mounts the authentication, account, and transaction routers. fileciteturn7file0L2-L2 fileciteturn8file0L2-L2
+`server.js` loads the environment, connects to MongoDB, imports the Express application, and starts the HTTP server. `src/app.js` registers JSON and cookie parsing middleware and mounts the authentication, account, and transaction routers. 
 
 ## Data Model
 
 ### User
 
-Users contain an email, name, password, and a `systemUser` flag. The password is excluded from normal queries and is hashed with bcrypt before saving. Email and name are unique. `systemUser` is immutable once set. fileciteturn16file0L2-L2
+Users contain an email, name, password, and a `systemUser` flag. The password is excluded from normal queries and is hashed with bcrypt before saving. Email and name are unique. `systemUser` is immutable once set. 
 
 ### Account
 
-Each account belongs to a user and has a status and currency. A unique index on `user` ensures one account per user. The account model exposes `getBalance()`, which calculates the balance from ledger entries rather than storing a mutable balance field. fileciteturn17file0L2-L2
+Each account belongs to a user and has a status and currency. A unique index on `user` ensures one account per user. The account model exposes `getBalance()`, which calculates the balance from ledger entries rather than storing a mutable balance field. 
 
 ```text
 Balance = Total Credits - Total Debits
@@ -89,7 +89,7 @@ Balance = Total Credits - Total Debits
 
 ### Ledger
 
-The ledger is append-oriented financial history. Each entry records the account, amount, transaction, and entry type (`CREDIT` or `DEBIT`). Important ledger fields are immutable, and middleware prevents update/delete operations on ledger records. Account and transaction fields are indexed for efficient lookups. fileciteturn13file0L2-L2
+The ledger is append-oriented financial history. Each entry records the account, amount, transaction, and entry type (`CREDIT` or `DEBIT`). Important ledger fields are immutable, and middleware prevents update/delete operations on ledger records. Account and transaction fields are indexed for efficient lookups. 
 
 ### Transaction
 
@@ -101,7 +101,7 @@ PENDING → COMPLETED
         ↘ REVERSED
 ```
 
-The `idempotencyKey` is required, indexed, and unique so the same key cannot represent multiple transaction records. Sender and receiver account fields are also indexed. fileciteturn18file0L2-L2
+The `idempotencyKey` is required, indexed, and unique so the same key cannot represent multiple transaction records. Sender and receiver account fields are also indexed. 
 
 ### Token Blacklist
 
@@ -133,7 +133,7 @@ Request continues
 
 The middleware also includes a separate system-user authorization path. It verifies the JWT, loads the user including `systemUser`, and rejects callers that are not system users.
 
-On logout, the current token is stored in the blacklist and the authentication cookie is cleared. fileciteturn9file0L2-L2
+On logout, the current token is stored in the blacklist and the authentication cookie is cleared. 
 
 ## Transaction Flow
 
@@ -161,7 +161,7 @@ A normal transfer follows a ten-step process implemented in `transaction.control
 10. Send notification
 ```
 
-The database writes for the transaction and its ledger entries are performed using a MongoDB session/transaction so the money movement is treated as an atomic unit. The current implementation also contains an artificial `sleep(15000)` delay in the normal transfer path, which appears to be intended for demonstrating/testing transaction and concurrent-request behavior. fileciteturn15file0L2-L2
+The database writes for the transaction and its ledger entries are performed using a MongoDB session/transaction so the money movement is treated as an atomic unit. The current implementation also contains an artificial `sleep(15000)` delay in the normal transfer path, which appears to be intended for demonstrating/testing transaction and concurrent-request behavior. 
 
 ### Double-entry representation
 
@@ -172,7 +172,7 @@ Sender Account ── DEBIT  100
 Receiver Account ─ CREDIT 100
 ```
 
-The sender's balance decreases by `100`, while the receiver's balance increases by `100`. Balances are derived from the ledger rather than directly updated on the account document. fileciteturn13file0L2-L2 fileciteturn17file0L2-L2
+The sender's balance decreases by `100`, while the receiver's balance increases by `100`. Balances are derived from the ledger rather than directly updated on the account document. 
 
 ## Idempotency
 
@@ -188,7 +188,7 @@ Existing transaction?
 Return status     Process transaction
 ```
 
-Supported existing states include `COMPLETED`, `PENDING`, `FAILED`, and `REVERSED`. The database also enforces uniqueness on the idempotency key. fileciteturn18file0L2-L2 fileciteturn15file0L2-L2
+Supported existing states include `COMPLETED`, `PENDING`, `FAILED`, and `REVERSED`. The database also enforces uniqueness on the idempotency key.
 
 ## API Endpoints
 
@@ -200,7 +200,7 @@ Supported existing states include `COMPLETED`, `PENDING`, `FAILED`, and `REVERSE
 | `POST` | `/api/auth/login` | Login and receive JWT authentication | Public |
 | `POST` | `/api/auth/logout` | Blacklist current token and clear cookie | Public |
 
-These routes are defined in `auth.routes.js`. fileciteturn10file0L2-L2
+These routes are defined in `auth.routes.js`. 
 
 ### Accounts
 
@@ -210,7 +210,7 @@ These routes are defined in `auth.routes.js`. fileciteturn10file0L2-L2�
 | `GET` | `/api/accounts/` | Get accounts belonging to the authenticated user | Required |
 | `GET` | `/api/accounts/balance/:accountId` | Get the derived balance of an account | Required |
 
-The account routes are protected by the authentication middleware, and the balance endpoint verifies that the account belongs to the authenticated user before calculating its balance. fileciteturn11file0L2-L2 fileciteturn14file0L2-L2
+The account routes are protected by the authentication middleware, and the balance endpoint verifies that the account belongs to the authenticated user before calculating its balance. 
 
 ### Transactions
 
@@ -219,7 +219,7 @@ The account routes are protected by the authentication middleware, and the balan
 | `POST` | `/api/transactions/` | Create a transfer between accounts | User auth |
 | `POST` | `/api/transactions/system/initial-funds` | Add initial funds from the system user's account | System-user auth |
 
-The transaction routes apply the appropriate authentication middleware to each endpoint. fileciteturn12file0L2-L2
+The transaction routes apply the appropriate authentication middleware to each endpoint. 
 
 ## Getting Started
 
@@ -250,7 +250,7 @@ JWT_SECRET_KEY=your_jwt_secret
 # Add the SMTP variables expected by src/services/email.service.js
 ```
 
-The database connection reads `MONGODB_URI`, while JWT creation and verification use `JWT_SECRET_KEY`. fileciteturn19file0L2-L2 fileciteturn9file0L2-L2
+The database connection reads `MONGODB_URI`, while JWT creation and verification use `JWT_SECRET_KEY`. 
 
 ### Run in development
 
@@ -258,9 +258,9 @@ The database connection reads `MONGODB_URI`, while JWT creation and verification
 npm run dev
 ```
 
-The repository currently defines `dev` as `npx nodemon server.js`. fileciteturn6file0L2-L2
+The repository currently defines `dev` as `npx nodemon server.js`. 
 
-The API defaults to port `3000` when `PORT` is not provided. fileciteturn7file0L2-L2
+The API defaults to port `3000` when `PORT` is not provided. 
 
 ## Example Request
 
@@ -281,7 +281,7 @@ Authorization: Bearer <token>
 }
 ```
 
-The controller validates the required fields, verifies both accounts, checks account status, derives the sender balance from ledger entries, and then performs the transfer inside a MongoDB transaction. fileciteturn15file0L2-L2
+The controller validates the required fields, verifies both accounts, checks account status, derives the sender balance from ledger entries, and then performs the transfer inside a MongoDB transaction. 
 
 ## Project Goals
 
@@ -301,13 +301,13 @@ This project is primarily focused on learning and demonstrating backend engineer
 
 ## Current Development Notes
 
-This repository is a learning-oriented implementation and is still evolving. The current transaction controller intentionally contains a 15-second delay in the normal transaction flow for experimentation with transaction behavior and concurrent requests. Some email notification code in the transaction controller is currently commented out. fileciteturn15file0L2-L2
+This repository is a learning-oriented implementation and is still evolving. The current transaction controller intentionally contains a 15-second delay in the normal transaction flow for experimentation with transaction behavior and concurrent requests. Some email notification code in the transaction controller is currently commented out. 
 
 For production use, additional work would be expected around stronger validation, error handling, transaction concurrency strategy, observability, automated tests, and deployment configuration.
 
 ## License
 
-This project currently uses the `ISC` license as declared in `package.json`. fileciteturn6file0L2-L2
+This project currently uses the `ISC` license as declared in `package.json`. 
 
 ## Author
 
